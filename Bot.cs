@@ -12,10 +12,18 @@ public class Bot
     TwitchClient client;
     AIChat aiChat;
 
-    public Bot()
+    private string _endpoint;
+    private string _botName;
+    private string _channelName;
+
+    public Bot(string? endpoint, string? botName, string? channelName)
     {
-        aiChat = new AIChat("https://dm-openai-test-env.openai.azure.com/");
-        ConnectionCredentials credentials = new ConnectionCredentials("dmcgptbot", Environment.GetEnvironmentVariable("TwitchToken"));
+        _endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
+        _botName = botName ?? throw new ArgumentNullException(nameof(botName));
+        _channelName = channelName ?? throw new ArgumentNullException(nameof(channelName));
+
+        aiChat = new AIChat(_endpoint);
+        ConnectionCredentials credentials = new ConnectionCredentials(_botName, Environment.GetEnvironmentVariable("TwitchToken"));
         var clientOptions = new ClientOptions
         {
             MessagesAllowedInPeriod = 750,
@@ -23,7 +31,7 @@ public class Bot
         };
         WebSocketClient customClient = new WebSocketClient(clientOptions);
         client = new TwitchClient(customClient);
-        client.Initialize(credentials, "dmcasaservice");
+        client.Initialize(credentials, _channelName);
 
         client.OnLog += Client_OnLog;
         client.OnJoinedChannel += Client_OnJoinedChannel;
@@ -56,9 +64,9 @@ public class Bot
         if (e.ChatMessage.Message.Contains("badword"))
             client.TimeoutUser(e.ChatMessage.Channel, e.ChatMessage.Username, TimeSpan.FromMinutes(30), "Bad word! 30 minute timeout!");
 
-        if (e.ChatMessage.Message.Contains("@dmcgptbot"))
+        if (e.ChatMessage.Message.Contains($"@{_botName}"))
         {
-            var returnMessage = aiChat.AskQuestion(e.ChatMessage.Message.Replace("@dmcgptbot", ""));
+            var returnMessage = aiChat.AskQuestion(e.ChatMessage.Message.Replace($"@{_botName}", ""));
             if(returnMessage.Count() >= 500)
             {
                 client.SendMessage(e.ChatMessage.Channel, "Sorry, my response was too long let me summarize my answer");
