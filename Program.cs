@@ -15,7 +15,11 @@ public class Program
         Console.WriteLine($"Endpoint: {endpoint}");
         string? botName = config["BotName"];
         string? channelName = config["ChannelName"];
-        Bot bot = new Bot(endpoint, botName, channelName);
+        string? redisConnectionString = config["RedisConnectionString"];
+
+        RedisConnection redisConnection = new RedisConnection(redisConnectionString);
+
+        Bot bot = new Bot(endpoint, botName, channelName, redisConnection);
         Console.ReadLine();
     }
 }
