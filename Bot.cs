@@ -19,8 +19,6 @@ public class Bot
 
     private readonly Twitch _twitch;
 
-    private readonly AudioToText _audioToText;
-
     public Bot(string? endpoint, string? botName, string? channelName, RedisConnection redisConnection)
     {
         _endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
@@ -39,10 +37,6 @@ public class Bot
         _twitch.AddOnConnectedHandler(Client_OnConnected);
         _twitch.Connect();
         
-
-        _audioToText = new AudioToText();
-        _audioToText.TextReceived += AudioToText_TextReceived;
-        _audioToText.StartRecognitionAsync();
     }
 
     private void AudioToText_TextReceived(object? sender, string e)
