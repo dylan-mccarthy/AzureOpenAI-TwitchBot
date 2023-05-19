@@ -17,6 +17,8 @@ public class Bot
     private string _channelName;
     private RedisConnection _redisConnection;
 
+    private readonly AIChatInterface _aiChatInterface;
+
     private readonly Twitch _twitch;
 
     public Bot(string? endpoint, string? botName, string? channelName, RedisConnection redisConnection)
@@ -26,8 +28,9 @@ public class Bot
         _channelName = channelName ?? throw new ArgumentNullException(nameof(channelName));
         _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
 
-        _aiChat = new AIChat(_endpoint);
-        _aiChat.MessageReceived += AiChat_MessageReceived;
+        _aiChatInterface = new AIChatInterface(_endpoint);
+        //_aiChat = new AIChat(_endpoint);
+        //_aiChat.MessageReceived += AiChat_MessageReceived;
         _twitch = new Twitch(_botName, _channelName);
         _twitch.AddOnLogHandler(Client_OnLog);
         _twitch.AddOnJoinedChannelHandler(Client_OnJoinedChannel);
@@ -73,7 +76,7 @@ public class Bot
         _twitch.SendMessage("Hey guys! I am a bot connected via TwitchLib!");
     }
 
-    private void Client_OnMessageReceived(object? sender, OnMessageReceivedArgs e)
+    private async void Client_OnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
         if (e.ChatMessage.Message.Contains("badword"))
             _twitch.TimeoutUser(e.ChatMessage.Channel, e.ChatMessage.Username, TimeSpan.FromMinutes(30), "Bad word! 30 minute timeout!");
@@ -82,7 +85,9 @@ public class Bot
         {
             _redisConnection.AddTwitchChatMessage(new TwitchChatMessage(e.ChatMessage.Username, e.ChatMessage.Message.Replace($"@{_botName}", "")));
             var messagesForUser = _redisConnection.GetTwitchChatMessageByUsername(e.ChatMessage.Username);
-            _aiChat.AskQuestion(messagesForUser);
+            //_aiChat.AskQuestion(messagesForUser);
+            var response = await _aiChatInterface.Ask(e.ChatMessage.Message.Replace($"@{_botName}", ""));
+            _twitch.SendMessage(response);
         }
     }
     

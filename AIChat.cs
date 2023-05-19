@@ -6,6 +6,7 @@ public class AIChat
 {
     private readonly OpenAIClient _client;
     public event EventHandler<string> MessageReceived;
+
     public AIChat(string endpoint){
         _client = new OpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
     }

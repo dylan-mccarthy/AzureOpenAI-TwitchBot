@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.28.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="0.14.547.1-preview" />
     <PackageReference Include="NAudio" Version="2.1.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.111" />
     <PackageReference Include="TwitchLib" Version="3.5.3" />
@@ -22,6 +23,11 @@
   <None Update="appsettings.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
-</ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AppSkills\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>
